@@ -16,18 +16,14 @@
 
 #include "liblog_symbols.h"
 
-#if defined(__ANDROID_SDK_VERSION__) && (__ANDROID_SDK_VERSION__ <= 29)
-#define USE_DLSYM
-#endif
-
-#ifdef USE_DLSYM
+#if defined(__ANDROID__) && !defined(NO_LIBLOG_DLSYM)
 #include <dlfcn.h>
 #endif
 
 namespace android {
 namespace base {
 
-#ifdef USE_DLSYM
+#if defined(__ANDROID__) && !defined(NO_LIBLOG_DLSYM)
 
 const std::optional<LibLogFunctions>& GetLibLogFunctions() {
   static std::optional<LibLogFunctions> liblog_functions = []() -> std::optional<LibLogFunctions> {
@@ -46,7 +42,7 @@ const std::optional<LibLogFunctions>& GetLibLogFunctions() {
   }
 
     DLSYM(__android_log_set_logger)
-    DLSYM(__android_log_write_log_message)
+    DLSYM(__android_log_write_logger_data)
     DLSYM(__android_log_logd_logger)
     DLSYM(__android_log_stderr_logger)
     DLSYM(__android_log_set_aborter)
@@ -69,7 +65,7 @@ const std::optional<LibLogFunctions>& GetLibLogFunctions() {
   static std::optional<LibLogFunctions> liblog_functions = []() -> std::optional<LibLogFunctions> {
     return LibLogFunctions{
         .__android_log_set_logger = __android_log_set_logger,
-        .__android_log_write_log_message = __android_log_write_log_message,
+        .__android_log_write_logger_data = __android_log_write_logger_data,
         .__android_log_logd_logger = __android_log_logd_logger,
         .__android_log_stderr_logger = __android_log_stderr_logger,
         .__android_log_set_aborter = __android_log_set_aborter,

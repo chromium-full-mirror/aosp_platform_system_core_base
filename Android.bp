@@ -47,17 +47,13 @@ cc_library_headers {
             enabled: true,
         },
     },
-    apex_available: [
-        "//apex_available:anyapex",
-        "//apex_available:platform",
-    ],
-    min_sdk_version: "29",
 }
 
 cc_defaults {
     name: "libbase_defaults",
     defaults: ["libbase_cflags_defaults"],
     srcs: [
+        "abi_compatibility.cpp",
         "chrono_utils.cpp",
         "cmsg.cpp",
         "file.cpp",
@@ -73,6 +69,10 @@ cc_defaults {
         "threads.cpp",
         "test_utils.cpp",
     ],
+
+    static: {
+        cflags: ["-DNO_LIBLOG_DLSYM"],
+    },
 
     cppflags: ["-Wexit-time-destructors"],
     shared_libs: ["liblog"],
@@ -132,7 +132,6 @@ cc_library {
         "//apex_available:anyapex",
         "//apex_available:platform",
     ],
-    min_sdk_version: "29",
 }
 
 cc_library_static {
@@ -158,7 +157,6 @@ cc_test {
         "errors_test.cpp",
         "expected_test.cpp",
         "file_test.cpp",
-        "logging_splitters_test.cpp",
         "logging_test.cpp",
         "macros_test.cpp",
         "mapped_file_test.cpp",
@@ -203,23 +201,6 @@ cc_test {
         },
     },
     test_suites: ["device-tests"],
-}
-
-cc_test {
-    name: "libbase_tidy_test",
-    defaults: ["libbase_cflags_defaults"],
-    host_supported: true,
-
-    tidy: true,
-    tidy_checks_as_errors: ["bugprone-use-after-move"],
-
-    srcs: [
-        "tidy/unique_fd_test.cpp",
-        "tidy/unique_fd_test2.cpp",
-    ],
-
-    shared_libs: ["libbase"],
-    test_suites: ["device_tests"],
 }
 
 cc_benchmark {

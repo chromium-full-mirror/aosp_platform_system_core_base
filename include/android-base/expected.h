@@ -182,7 +182,7 @@ class _NODISCARD_ expected {
                 !std::is_same_v<unexpected<E>, std::remove_cv_t<std::remove_reference_t<U>>> &&
                 std::is_convertible_v<U&&, T> /* non-explicit */
                 )>
-  // NOLINTNEXTLINE(google-explicit-constructor,bugprone-forwarding-reference-overload)
+  // NOLINTNEXTLINE(google-explicit-constructor)
   constexpr expected(U&& v) : var_(std::in_place_index<0>, std::forward<U>(v)) {}
 
   template <class U = T _ENABLE_IF(
@@ -192,7 +192,6 @@ class _NODISCARD_ expected {
                 !std::is_same_v<unexpected<E>, std::remove_cv_t<std::remove_reference_t<U>>> &&
                 !std::is_convertible_v<U&&, T> /* explicit */
                 )>
-  // NOLINTNEXTLINE(bugprone-forwarding-reference-overload)
   constexpr explicit expected(U&& v) : var_(std::in_place_index<0>, T(std::forward<U>(v))) {}
 
   template<class G = E _ENABLE_IF(
@@ -388,9 +387,13 @@ class _NODISCARD_ expected {
 
 template<class T1, class E1, class T2, class E2>
 constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y) {
-  if (x.has_value() != y.has_value()) return false;
-  if (!x.has_value()) return x.error() == y.error();
-  return *x == *y;
+  if (x.has_value() != y.has_value()) {
+    return false;
+  } else if (!x.has_value()) {
+    return x.error() == y.error();
+  } else {
+    return *x == *y;
+  }
 }
 
 template<class T1, class E1, class T2, class E2>
@@ -578,23 +581,35 @@ class _NODISCARD_ expected<void, E> {
 
 template<class E1, class E2>
 constexpr bool operator==(const expected<void, E1>& x, const expected<void, E2>& y) {
-  if (x.has_value() != y.has_value()) return false;
-  if (!x.has_value()) return x.error() == y.error();
-  return true;
+  if (x.has_value() != y.has_value()) {
+    return false;
+  } else if (!x.has_value()) {
+    return x.error() == y.error();
+  } else {
+    return true;
+  }
 }
 
 template<class T1, class E1, class E2>
 constexpr bool operator==(const expected<T1, E1>& x, const expected<void, E2>& y) {
-  if (x.has_value() != y.has_value()) return false;
-  if (!x.has_value()) return x.error() == y.error();
-  return false;
+  if (x.has_value() != y.has_value()) {
+    return false;
+  } else if (!x.has_value()) {
+    return x.error() == y.error();
+  } else {
+    return false;
+  }
 }
 
 template<class E1, class T2, class E2>
 constexpr bool operator==(const expected<void, E1>& x, const expected<T2, E2>& y) {
-  if (x.has_value() != y.has_value()) return false;
-  if (!x.has_value()) return x.error() == y.error();
-  return false;
+  if (x.has_value() != y.has_value()) {
+    return false;
+  } else if (!x.has_value()) {
+    return x.error() == y.error();
+  } else {
+    return false;
+  }
 }
 
 template<class E>
@@ -608,7 +623,7 @@ class unexpected {
                 std::is_constructible_v<E, Err> &&
                 !std::is_same_v<std::remove_cv_t<std::remove_reference_t<E>>, std::in_place_t> &&
                 !std::is_same_v<std::remove_cv_t<std::remove_reference_t<E>>, unexpected>)>
-  // NOLINTNEXTLINE(google-explicit-constructor,bugprone-forwarding-reference-overload)
+  // NOLINTNEXTLINE(google-explicit-constructor)
   constexpr unexpected(Err&& e) : val_(std::forward<Err>(e)) {}
 
   template<class U, class... Args _ENABLE_IF(
